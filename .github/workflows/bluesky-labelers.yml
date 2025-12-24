@@ -1,0 +1,88 @@
+name: bluesky-labelers Research
+
+on:
+  schedule:
+    # Every 14 days (biweekly) at midnight UTC
+    - cron: '0 0 */14 * *'
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.10
+
+      - name: Run research task
+        id: research
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "Running bluesky-labelers research..."
+          uv run tasks/bluesky-labelers/research.py | tee task_output.txt
+
+          # Check if alert was found
+          if grep -q "ALERT:" task_output.txt; then
+            echo "has_alert=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_alert=false" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: false
+
+      - name: Save results
+        if: steps.research.outputs.has_alert == 'true'
+        run: |
+          # Create dated result file
+          DATE=$(date +%Y-%m-%d)
+          MONTH=$(date +%Y-%m)
+          mkdir -p tasks/bluesky-labelers/results/$MONTH
+
+          # Write results
+          {
+            echo "# bluesky-labelers Research Results"
+            echo ""
+            echo "**Date:** $DATE"
+            echo ""
+            grep "ALERT:" task_output.txt
+          } > tasks/bluesky-labelers/results/$MONTH/${DATE}.md
+
+          # Update latest
+          cp tasks/bluesky-labelers/results/$MONTH/${DATE}.md tasks/bluesky-labelers/results/latest.md
+
+          # Add to workflow summary
+          echo "## 🔔 Research Alert: bluesky-labelers" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          grep "ALERT:" task_output.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Record completion
+        if: steps.research.outputs.has_alert == 'false'
+        run: |
+          echo "## ✓ Research Complete: bluesky-labelers" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "No alerts found. Task completed successfully." >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit results
+        if: steps.research.outputs.has_alert == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tasks/bluesky-labelers/results/
+          git commit -m "Research results: bluesky-labelers ($(date +%Y-%m-%d))" || echo "No changes to commit"
+          git push

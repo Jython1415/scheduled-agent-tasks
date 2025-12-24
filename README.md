@@ -10,17 +10,17 @@ Template for running scheduled AI-powered research tasks using Claude Agent SDK 
    ```
 
 2. **Add a research task:**
-   - Copy `tasks/_template.py` → `tasks/my-task.py`
-   - Edit `get_research_prompt()` with your research
-   - Copy `.github/workflows/_template-workflow.yml` → `.github/workflows/my-task.yml`
-   - Replace `TASK_NAME` with `my-task` throughout the workflow
+   - Copy the template folder: `cp -r tasks/_template tasks/my-task`
+   - Edit `get_research_prompt()` in `tasks/my-task/research.py`
+   - Copy the workflow: `cp .github/workflows/_template.yml .github/workflows/my-task.yml`
+   - Replace `TASK_NAME` with `my-task` in the workflow file
    - Set schedule (cron expression)
    - Commit and push
 
-3. **Check results:** Look in `results/latest/` for recent findings, or `results/YYYY-MM/` for history
+3. **Check results:** Look in `tasks/my-task/results/latest.md` for recent findings, or `tasks/my-task/results/YYYY-MM/` for history
 
-## How It Works
+## Structure
 
-Each research task runs on its own schedule, uses Claude Agent SDK to search and analyze information, and writes findings to markdown files in `results/`. Only significant findings (alerts) are saved.
+Each task is self-contained in its own folder with results stored alongside the code.
 
 See [setup_guide.md](setup_guide.md) for detailed documentation and examples.

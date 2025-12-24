@@ -9,13 +9,14 @@
 TASK_NAME Research Task
 
 Template for scheduled research tasks using Claude Agent SDK.
-Copy this file and modify get_research_prompt() for your specific needs.
+Copy the entire _template folder and modify get_research_prompt() for your specific needs.
 
 Usage:
-  1. Copy this file: tasks/_template.py → tasks/my-task.py
-  2. Modify get_research_prompt() below with your research task
-  3. Copy the workflow: .github/workflows/_template-workflow.yml → .github/workflows/my-task.yml
-  4. Replace TASK_NAME with my-task in both files
+  1. Copy the template folder: cp -r tasks/_template tasks/my-task
+  2. Modify get_research_prompt() in tasks/my-task/research.py
+  3. Copy the workflow: cp .github/workflows/_template.yml .github/workflows/my-task.yml
+  4. Replace TASK_NAME with my-task in the workflow file
+  5. Set your desired schedule in the workflow
 """
 
 import asyncio
@@ -26,7 +27,7 @@ try:
     from claude_agent_sdk import query, ClaudeAgentOptions
 except ImportError:
     print("ERROR: claude-agent-sdk not installed", file=sys.stderr)
-    print("Run with: uv run task.py", file=sys.stderr)
+    print("Run with: uv run research.py", file=sys.stderr)
     sys.exit(1)
 
 

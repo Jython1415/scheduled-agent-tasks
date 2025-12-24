@@ -34,7 +34,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           echo "Running TASK_NAME research..."
-          uv run tasks/TASK_NAME.py | tee task_output.txt
+          uv run tasks/TASK_NAME/research.py | tee task_output.txt
 
           # Check if alert was found
           if grep -q "ALERT:" task_output.txt; then
@@ -50,7 +50,7 @@ jobs:
           # Create dated result file
           DATE=$(date +%Y-%m-%d)
           MONTH=$(date +%Y-%m)
-          mkdir -p results/$MONTH
+          mkdir -p tasks/TASK_NAME/results/$MONTH
 
           # Write results
           {
@@ -59,10 +59,10 @@ jobs:
             echo "**Date:** $DATE"
             echo ""
             grep "ALERT:" task_output.txt
-          } > results/$MONTH/${DATE}-TASK_NAME.md
+          } > tasks/TASK_NAME/results/$MONTH/${DATE}.md
 
           # Update latest
-          cp results/$MONTH/${DATE}-TASK_NAME.md results/latest/TASK_NAME.md
+          cp tasks/TASK_NAME/results/$MONTH/${DATE}.md tasks/TASK_NAME/results/latest.md
 
           # Add to workflow summary
           echo "## 🔔 Research Alert: TASK_NAME" >> $GITHUB_STEP_SUMMARY
@@ -81,6 +81,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add results/
+          git add tasks/TASK_NAME/results/
           git commit -m "Research results: TASK_NAME ($(date +%Y-%m-%d))" || echo "No changes to commit"
           git push

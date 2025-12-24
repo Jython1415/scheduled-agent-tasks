@@ -23,5 +23,8 @@ ENV/
 .DS_Store
 Thumbs.db
 
+# Claude Code
+.claude/
+
 # Note: results/ directory is intentionally NOT ignored
 # Results are committed to maintain research history

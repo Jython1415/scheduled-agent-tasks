@@ -291,7 +291,7 @@ async def main():
         options = ClaudeAgentOptions(
             cwd=".",
             allowed_tools=["WebSearch", "WebFetch"],
-            permission_mode="acceptAll",
+            permission_mode="bypassPermissions",
             max_turns=15,  # Allow more turns for thorough research
             system_prompt="""You are a focused research agent monitoring Bluesky labeler health.
 Your job: analyze connectivity status, search for recent issues/controversies, report significant findings.

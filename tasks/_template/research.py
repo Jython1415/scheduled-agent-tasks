@@ -96,7 +96,7 @@ async def main():
     options = ClaudeAgentOptions(
         cwd=".",
         allowed_tools=["WebSearch", "WebFetch"],
-        permission_mode="acceptAll",
+        permission_mode="bypassPermissions",
         max_turns=10,
         system_prompt="""You are a focused research agent.
 Your job: search for specific information, analyze findings, report concisely.

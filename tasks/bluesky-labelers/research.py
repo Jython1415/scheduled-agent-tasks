@@ -2,8 +2,8 @@
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
-#   "claude-agent-sdk>=1.0.0",
-#   "atproto>=0.1.0",
+#   "claude-agent-sdk",
+#   "atproto",
 # ]
 # ///
 """

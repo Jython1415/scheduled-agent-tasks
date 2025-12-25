@@ -119,11 +119,24 @@ def get_research_prompt() -> str:
 
 Your task:
 1. First, I will provide you with a connectivity report showing which labelers are online/offline
-2. For each labeler (prioritizing offline or problematic ones), research recent mentions:
+2. For each labeler, research recent mentions:
    - Controversies or trust issues (past 2-4 weeks)
    - Policy changes or operational updates
    - Community concerns or complaints
    - Reports of inappropriate behavior or misuse
+
+**Known Issues to Ignore** (do not alert on these):
+
+- **Laelaps (@laelaps.fyi)**: The "interacts" label is a known controversial feature that
+  labels users who interact with flagged accounts. This is by design and not a new issue.
+
+- **Anti "Anti-AI" Labeler (@antiantiai.bsky.social)**: Was created in Nov 2024 during the
+  Hugging Face dataset controversy. The initial controversy is known and not concerning.
+
+- **Profile Labeller (@profile-labels.bossett.social)**: Technical GitHub issues from the
+  developer are normal maintenance, not user-facing problems.
+
+Only report NEW or WORSENING issues, not the known controversies listed above.
 
 Sources to check:
 - Bluesky posts mentioning the labeler name or handle
@@ -136,15 +149,17 @@ Guidelines:
 - Prioritize recent information (past 2-4 weeks)
 - Be thorough but efficient with searches
 - Distinguish between legitimate concerns and unfounded complaints
+- **Filter out the known issues listed above**
 
 Output format:
-- If you find connectivity issues OR significant concerns:
+- If you find connectivity issues OR new/significant concerns:
   Print "ALERT: Issues found with Bluesky labelers" followed by details
 
-- If all labelers are healthy and no significant concerns found:
+- If all labelers are healthy and no NEW significant concerns found:
   Print "SILENT"
 
-Be objective and fact-based in your assessment. The goal is to identify real issues that warrant review of labeler subscriptions.
+Be objective and fact-based in your assessment. The goal is to identify real NEW issues
+that warrant review of labeler subscriptions.
 """
 
 

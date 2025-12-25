@@ -23,6 +23,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          ignore-nothing-to-cache: true  # PEP 723 inline deps, no external files
 
       - name: Set up Python
         run: uv python install 3.10
@@ -47,36 +48,45 @@ jobs:
         continue-on-error: false
 
       - name: Save results
-        if: steps.research.outputs.has_alert == 'true'
+        # Always save results, not just on alert
         run: |
-          # Create dated result file
           DATE=$(date +%Y-%m-%d)
+          TIME=$(date +%H:%M:%S)
           MONTH=$(date +%Y-%m)
           mkdir -p tasks/bluesky-labelers/results/$MONTH
 
-          # Write results
+          # Determine status
+          if grep -q "ALERT:" task_output.txt; then
+            STATUS="ALERT"
+          else
+            STATUS="SILENT"
+          fi
+
+          # Write full results with status
           {
-            echo "# bluesky-labelers Research Results"
+            echo "# Bluesky Labelers Research Results"
             echo ""
-            echo "**Date:** $DATE"
+            echo "**Date:** $DATE $TIME UTC"
+            echo "**Status:** $STATUS"
             echo ""
-            grep "ALERT:" task_output.txt
+            echo "---"
+            echo ""
+            cat task_output.txt
           } > tasks/bluesky-labelers/results/$MONTH/${DATE}.md
 
-          # Update latest
+          # Always update latest
           cp tasks/bluesky-labelers/results/$MONTH/${DATE}.md tasks/bluesky-labelers/results/latest.md
 
           # Add to workflow summary
-          echo "## 🔔 Research Alert: bluesky-labelers" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          grep "ALERT:" task_output.txt >> $GITHUB_STEP_SUMMARY
-
-      - name: Record completion
-        if: steps.research.outputs.has_alert == 'false'
-        run: |
-          echo "## ✓ Research Complete: bluesky-labelers" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "No alerts found. Task completed successfully." >> $GITHUB_STEP_SUMMARY
+          if [ "$STATUS" = "ALERT" ]; then
+            echo "## 🔔 Research Alert: bluesky-labelers" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            grep "ALERT:" task_output.txt >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✓ Research Complete: bluesky-labelers" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No alerts found. All labelers healthy. Check results/latest.md for details." >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Commit results
         if: steps.research.outputs.has_alert == 'true'
@@ -86,3 +96,10 @@ jobs:
           git add tasks/bluesky-labelers/results/
           git commit -m "Research results: bluesky-labelers ($(date +%Y-%m-%d))" || echo "No changes to commit"
           git push
+
+      - name: Fail workflow on alert (triggers email notifications)
+        if: steps.research.outputs.has_alert == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('🔔 Bluesky labeler issues detected. Check tasks/bluesky-labelers/results/latest.md for details.')

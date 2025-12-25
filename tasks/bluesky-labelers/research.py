@@ -133,9 +133,6 @@ Your task:
 - **Anti "Anti-AI" Labeler (@antiantiai.bsky.social)**: Was created in Nov 2024 during the
   Hugging Face dataset controversy. The initial controversy is known and not concerning.
 
-- **Profile Labeller (@profile-labels.bossett.social)**: Technical GitHub issues from the
-  developer are normal maintenance, not user-facing problems.
-
 Only report NEW or WORSENING issues, not the known controversies listed above.
 
 Sources to check:
@@ -143,9 +140,9 @@ Sources to check:
 - GitHub issues/discussions (if the labeler has a public repo)
 - Community forums, blog posts, or announcements
 - Any official labeler communications
+- Online articles discussing the labeler
 
 Guidelines:
-- Focus on SIGNIFICANT issues only (not minor complaints or routine updates)
 - Prioritize recent information (past 2-4 weeks)
 - Be thorough but efficient with searches
 - Distinguish between legitimate concerns and unfounded complaints
@@ -156,7 +153,7 @@ Output format:
   Print "ALERT: Issues found with Bluesky labelers" followed by details
 
 - If all labelers are healthy and no NEW significant concerns found:
-  Print "SILENT"
+  Print "SILENT" followed by details from your research
 
 Be objective and fact-based in your assessment. The goal is to identify real NEW issues
 that warrant review of labeler subscriptions.
